@@ -1,0 +1,588 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum TestType {
+  SCHEDULED
+  PRACTICE
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  AUTO_SUBMITTED
+  INVALIDATED
+}
+
+enum QuestionStatus {
+  ACTIVE
+  ARCHIVED
+  UNDER_REVIEW
+}
+
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum VisibilityOption {
+  IMMEDIATELY
+  AFTER_WINDOW
+  NEVER
+  MANUAL
+}
+
+enum AuditAction {
+  RESULT_CHANGED
+  TEST_PUBLISHED
+  TEST_UNPUBLISHED
+  QUESTION_EDITED_LIVE
+  ACCOUNT_ACTIVATED
+  ACCOUNT_DEACTIVATED
+  PASSWORD_RESET
+  ROLE_CHANGED
+  ATTEMPT_INVALIDATED
+  ATTEMPT_TIME_EXTENDED
+  ATTEMPT_FORCE_SUBMITTED
+  ANSWER_CORRECTION
+  LOGIN
+  FORCE_LOGOUT
+  CREATE_TEST
+  CREATE_QUESTION
+  START_ATTEMPT
+  SUBMIT_ATTEMPT
+}
+
+// ============================================================
+// USER & PROFILES
+// ============================================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String?   @unique
+  passwordHash  String
+  role          Role      @default(STUDENT)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  // Relations
+  studentProfile  StudentProfile?
+  teacherProfile  TeacherProfile?
+  sessions        Session[]
+  auditLogs       AuditLog[]      @relation("AuditActor")
+  subjectAuditLogs AuditLog[]     @relation("AuditTarget")
+
+  @@index([email])
+  @@index([role])
+}
+
+model StudentProfile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName    String
+  phone       String?
+  city        String?
+  targetYear  Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  enrollments Enrollment[]
+  attempts    Attempt[]
+}
+
+model TeacherProfile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName    String
+  phone       String?
+  bio         String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  lectures    Lecture[]
+}
+
+// ============================================================
+// SESSIONS & LOGIN EVENTS (for single-session control)
+// ============================================================
+
+model Session {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionToken  String    @unique
+  ipAddress     String?
+  userAgent     String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime
+  endedAt       DateTime?
+
+  @@index([userId])
+  @@index([sessionToken])
+}
+
+// ============================================================
+// COURSE STRUCTURE
+// ============================================================
+
+model Course {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  slug        String    @unique
+  isActive    Boolean   @default(true)
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  subjects    Subject[]
+  enrollments Enrollment[]
+  tests       Test[]
+}
+
+model Subject {
+  id          String    @id @default(cuid())
+  courseId    String
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  order       Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  chapters    Chapter[]
+  questions   Question[]
+  tests       Test[]
+
+  @@index([courseId])
+}
+
+model Chapter {
+  id          String    @id @default(cuid())
+  subjectId   String
+  subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  order       Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  topics      Topic[]
+  lectures    Lecture[]
+  questions   Question[]
+
+  @@index([subjectId])
+}
+
+model Topic {
+  id          String    @id @default(cuid())
+  chapterId   String
+  chapter     Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  order       Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  lectures    Lecture[]
+  questions   Question[]
+
+  @@index([chapterId])
+}
+
+// ============================================================
+// LECTURES & MATERIALS
+// ============================================================
+
+model Lecture {
+  id              String    @id @default(cuid())
+  chapterId       String
+  chapter         Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  topicId         String?
+  topic           Topic?    @relation(fields: [topicId], references: [id])
+  teacherId       String?
+  teacher         TeacherProfile? @relation(fields: [teacherId], references: [id])
+  title           String
+  description     String?
+  videoUrl        String?   // YouTube URL (MVP) or HLS stream URL (production)
+  videoDuration   Int?      // seconds
+  order           Int       @default(0)
+  isPublished     Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  materials       Material[]
+  completions     LectureCompletion[]
+
+  @@index([chapterId])
+}
+
+model Material {
+  id          String    @id @default(cuid())
+  lectureId   String
+  lecture     Lecture   @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  title       String
+  fileUrl     String    // Signed URL from Supabase Storage
+  fileType    String    // "pdf", "docx", etc.
+  fileSizeKb  Int?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  @@index([lectureId])
+}
+
+model LectureCompletion {
+  id          String    @id @default(cuid())
+  lectureId   String
+  lecture     Lecture   @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  studentId   String
+  completedAt DateTime  @default(now())
+
+  @@unique([lectureId, studentId])
+  @@index([studentId])
+}
+
+// ============================================================
+// ENROLLMENTS
+// ============================================================
+
+model Enrollment {
+  id          String    @id @default(cuid())
+  courseId    String
+  course      Course    @relation(fields: [courseId], references: [id])
+  studentId   String
+  student     StudentProfile @relation(fields: [studentId], references: [id])
+  enrolledAt  DateTime  @default(now())
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+
+  @@unique([courseId, studentId])
+  @@index([studentId])
+  @@index([courseId])
+}
+
+// ============================================================
+// QUESTIONS (versioned for exam integrity)
+// ============================================================
+
+model Question {
+  id          String             @id @default(cuid())
+  subjectId   String?
+  subject     Subject?           @relation(fields: [subjectId], references: [id])
+  chapterId   String?
+  chapter     Chapter?           @relation(fields: [chapterId], references: [id])
+  topicId     String?
+  topic       Topic?             @relation(fields: [topicId], references: [id])
+
+  // Content
+  text        String             // Supports KaTeX markdown
+  imageUrl    String?
+  difficulty  QuestionDifficulty @default(MEDIUM)
+  source      String?            // e.g., "MDCAT 2022"
+  status      QuestionStatus     @default(ACTIVE)
+  tags        String[]           @default([])
+
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  deletedAt   DateTime?          // Soft delete
+
+  // Relations
+  versions    QuestionVersion[]  // Full version history
+  currentVersion QuestionVersion? @relation("CurrentVersion", fields: [currentVersionId], references: [id])
+  currentVersionId String?       @unique
+
+  testQuestions TestQuestion[]
+
+  @@index([subjectId])
+  @@index([chapterId])
+  @@index([status])
+}
+
+model QuestionVersion {
+  id              String    @id @default(cuid())
+  questionId      String
+  question        Question  @relation(fields: [questionId], references: [id])
+  versionNumber   Int
+  text            String
+  imageUrl        String?
+  explanation     String?   // Never sent to client during test
+  createdAt       DateTime  @default(now())
+  createdBy       String?   // Admin user ID
+
+  // Options for this version
+  options         QuestionOption[]
+
+  // This version is the current one (back relation)
+  currentForQuestion Question? @relation("CurrentVersion")
+
+  // AttemptQuestions reference the version seen by student
+  attemptQuestions AttemptQuestion[]
+
+  @@unique([questionId, versionNumber])
+  @@index([questionId])
+}
+
+model QuestionOption {
+  id              String          @id @default(cuid())
+  versionId       String
+  version         QuestionVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  text            String
+  imageUrl        String?
+  isCorrect       Boolean         @default(false)
+  order           Int             @default(0)
+
+  // NOTE: isCorrect is NEVER sent to client during test (enforced in API)
+  answers         AttemptAnswer[]
+
+  @@index([versionId])
+}
+
+// ============================================================
+// TESTS
+// ============================================================
+
+model Test {
+  id                    String           @id @default(cuid())
+  courseId              String?
+  course                Course?          @relation(fields: [courseId], references: [id])
+  subjectId             String?
+  subject               Subject?         @relation(fields: [subjectId], references: [id])
+  title                 String
+  description           String?
+  type                  TestType         @default(SCHEDULED)
+
+  // Timing
+  durationMinutes       Int              // Duration of the test
+  windowStart           DateTime?        // Scheduled start (null = practice)
+  windowEnd             DateTime?        // Scheduled end
+
+  // Attempt settings
+  maxAttempts           Int              @default(1)
+  fullDurationFromStart Boolean          @default(false) // EX-4: late joiners
+
+  // Marking scheme (snapshotted — never changed after attempts exist)
+  marksPerQuestion      Decimal          @default(1) @db.Decimal(5, 2)
+  negativeMarking       Boolean          @default(false)
+  negativeMarkValue     Decimal          @default(0.25) @db.Decimal(5, 2)
+  passPercentage        Decimal          @default(50) @db.Decimal(5, 2)
+  totalMarks            Decimal?         @db.Decimal(10, 2) // Computed on publish
+
+  // Randomization
+  randomizeQuestions    Boolean          @default(true)
+  randomizeOptions      Boolean          @default(true)
+
+  // Visibility settings (EX 45.8)
+  scoreVisibility       VisibilityOption @default(IMMEDIATELY)
+  answersVisibility     VisibilityOption @default(AFTER_WINDOW)
+  explanationsVisibility VisibilityOption @default(AFTER_WINDOW)
+
+  // State
+  isPublished           Boolean          @default(false)
+  publishedAt           DateTime?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  // Tab-switch settings
+  tabSwitchWarningCount Int              @default(3)
+  forwardOnly           Boolean          @default(false)
+
+  testQuestions         TestQuestion[]
+  attempts              Attempt[]
+
+  @@index([courseId])
+  @@index([type])
+  @@index([windowStart, windowEnd])
+}
+
+model TestQuestion {
+  id          String    @id @default(cuid())
+  testId      String
+  test        Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    Question  @relation(fields: [questionId], references: [id])
+  order       Int       @default(0) // Default order (overridden by per-student randomization)
+  marks       Decimal?  @db.Decimal(5, 2) // Override per-question if different
+
+  @@unique([testId, questionId])
+  @@index([testId])
+}
+
+// ============================================================
+// ATTEMPTS (exam integrity core)
+// ============================================================
+
+model Attempt {
+  id              String        @id @default(cuid())
+  testId          String
+  test            Test          @relation(fields: [testId], references: [id])
+  studentId       String
+  student         StudentProfile @relation(fields: [studentId], references: [id])
+
+  // Server-controlled timer (EX-6 to EX-10)
+  serverStartTime DateTime      // When student actually started
+  serverDeadline  DateTime      // Computed: serverStartTime + durationMinutes
+  submittedAt     DateTime?
+
+  status          AttemptStatus @default(IN_PROGRESS)
+  attemptNumber   Int           @default(1)
+
+  // Tab switch tracking (45.10)
+  tabSwitchCount  Int           @default(0)
+
+  // Invalidation
+  isInvalidated   Boolean       @default(false)
+  invalidationReason String?
+  invalidatedAt   DateTime?
+  invalidatedBy   String?       // Admin user ID
+
+  // Admin overrides
+  timeExtensionMinutes Int      @default(0)
+  extensionGrantedBy String?
+  extensionReason    String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  questions       AttemptQuestion[] // Per-student question order
+  answers         AttemptAnswer[]
+  result          Result?
+
+  // Unique: one active attempt per student per test
+  @@unique([testId, studentId, attemptNumber])
+  @@index([testId])
+  @@index([studentId])
+  @@index([status])
+  @@index([serverDeadline]) // For auto-submit cron job
+}
+
+model AttemptQuestion {
+  id              String          @id @default(cuid())
+  attemptId       String
+  attempt         Attempt         @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId      String
+  versionId       String
+  version         QuestionVersion @relation(fields: [versionId], references: [id])
+  position        Int             // Student's question order (1-based)
+  optionOrder     String[]        // Shuffled option IDs for this student
+  isFlagged       Boolean         @default(false)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+}
+
+model AttemptAnswer {
+  id              String          @id @default(cuid())
+  attemptId       String
+  attempt         Attempt         @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId      String
+  selectedOptionId String?
+  selectedOption   QuestionOption? @relation(fields: [selectedOptionId], references: [id])
+  savedAt         DateTime        @updatedAt
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+}
+
+// ============================================================
+// RESULTS
+// ============================================================
+
+model Result {
+  id              String    @id @default(cuid())
+  attemptId       String    @unique
+  attempt         Attempt   @relation(fields: [attemptId], references: [id])
+  studentId       String
+
+  // Scores
+  totalMarks      Decimal   @db.Decimal(10, 2)
+  obtainedMarks   Decimal   @db.Decimal(10, 2)
+  percentage      Decimal   @db.Decimal(5, 2)
+  isPassed        Boolean
+
+  // Breakdown
+  correctCount    Int
+  wrongCount      Int
+  skippedCount    Int
+  negativeMarks   Decimal   @db.Decimal(10, 2) @default(0)
+
+  // Subject-wise breakdown (JSON)
+  subjectBreakdown Json?
+
+  calculatedAt    DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([studentId])
+}
+
+// ============================================================
+// ANNOUNCEMENTS
+// ============================================================
+
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  courseId    String?   // null = all courses
+  isActive    Boolean   @default(true)
+  publishedAt DateTime  @default(now())
+  expiresAt   DateTime?
+  createdBy   String    // Admin user ID
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// ============================================================
+// AUDIT LOG (NFR-D5, NFR-S10)
+// ============================================================
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  actorId     String?
+  actor       User?       @relation("AuditActor", fields: [actorId], references: [id])
+  targetUserId String?
+  targetUser  User?       @relation("AuditTarget", fields: [targetUserId], references: [id])
+  action      AuditAction
+  entityType  String      // "Attempt", "Result", "Test", "Question", "User"
+  entityId    String
+  oldValue    Json?       // Previous state
+  newValue    Json?       // New state
+  reason      String?     // Mandatory for sensitive actions
+  ipAddress   String?
+  createdAt   DateTime    @default(now())
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
