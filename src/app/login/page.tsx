@@ -36,9 +36,9 @@ export default function LoginPage() {
     const session = await fetch('/api/auth/session').then(r => r.json())
     const role = session?.user?.role
 
-    if (role === 'ADMIN') router.push('/admin')
-    else if (role === 'TEACHER') router.push('/teacher')
-    else router.push('/dashboard')
+    if (role === 'ADMIN') window.location.href = '/admin'
+    else if (role === 'TEACHER') window.location.href = '/teacher'
+    else window.location.href = '/dashboard'
   }
 
   return (
