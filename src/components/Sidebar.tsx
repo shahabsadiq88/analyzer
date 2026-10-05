@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn, getInitials } from '@/lib/utils'
-import { useTheme } from '@/context/ThemeContext'
+import { useTheme } from '../context/ThemeContext'
 
 interface NavItem {
   href: string
