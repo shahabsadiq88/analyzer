@@ -66,7 +66,7 @@ export default async function StudentDashboard() {
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{
           fontFamily: 'Outfit, sans-serif', fontWeight: 800,
-          fontSize: 'clamp(1.5rem, 3vw, 2rem)', color: 'white', marginBottom: '0.375rem',
+          fontSize: 'clamp(1.5rem, 3vw, 2rem)', color: 'var(--text)', marginBottom: '0.375rem',
         }}>
           Welcome back, {session.user.name?.split(' ')[0]} 👋
         </h1>

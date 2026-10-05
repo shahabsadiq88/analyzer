@@ -170,7 +170,7 @@ export default async function StudentTestsPage() {
   return (
     <div style={{ padding: '1.5rem', maxWidth: 900, margin: '0 auto' }}>
       <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.75rem', color: 'white', marginBottom: '0.25rem' }}>Tests</h1>
+        <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.75rem', color: 'var(--text)', marginBottom: '0.25rem' }}>Tests</h1>
         <p style={{ color: '#64748b', fontSize: '0.875rem' }}>{tests.length} available tests</p>
       </div>
 

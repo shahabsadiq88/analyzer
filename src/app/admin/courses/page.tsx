@@ -35,7 +35,7 @@ export default async function AdminCoursesPage() {
     <div style={{ padding: '1.5rem', maxWidth: 1100, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.75rem', color: 'white', marginBottom: '0.25rem' }}>Courses</h1>
+          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.75rem', color: 'var(--text)', marginBottom: '0.25rem' }}>Courses</h1>
           <p style={{ color: '#64748b', fontSize: '0.875rem' }}>{courses.length} courses configured</p>
         </div>
         <Link href="/admin/courses/new" style={{
