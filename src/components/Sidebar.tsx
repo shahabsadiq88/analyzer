@@ -117,6 +117,28 @@ export default function Sidebar() {
         })}
       </nav>
 
+      {/* Theme Toggle Button */}
+      <div style={{ padding: '0 0.875rem 0.5rem' }}>
+        <button
+          onClick={toggleTheme}
+          style={{
+            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '0.625rem 0.875rem', borderRadius: 10,
+            background: 'var(--surface-2)', border: '1px solid var(--border)',
+            color: 'var(--text)', fontSize: '0.8125rem', fontWeight: 600,
+            cursor: 'pointer', transition: 'all 0.15s',
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+            {theme === 'dark' ? <Sun size={16} color="#f59e0b" /> : <Moon size={16} color="#ea580c" />}
+            <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+          </span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
+            {theme}
+          </span>
+        </button>
+      </div>
+
       {/* User menu */}
       <div style={{ padding: '0.875rem', borderTop: '1px solid var(--border)' }}>
         <button
