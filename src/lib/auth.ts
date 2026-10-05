@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import { Role } from '@prisma/client'
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || 'fallback_secret_for_jwt_tokens_2026',
   session: {
     strategy: 'jwt',
     maxAge: 24 * 60 * 60, // 24 hours

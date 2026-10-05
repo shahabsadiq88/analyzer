@@ -12,7 +12,10 @@ const protectedRoutes = {
 } as const
 
 export async function proxy(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  const token = await getToken({ 
+    req, 
+    secret: process.env.NEXTAUTH_SECRET || 'fallback_secret_for_jwt_tokens_2026'
+  })
   const { pathname } = req.nextUrl
 
   // Check if this is a protected route
