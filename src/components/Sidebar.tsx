@@ -5,10 +5,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   GraduationCap, LayoutDashboard, BookOpen, ClipboardList,
-  BarChart3, Users, Settings, LogOut, Menu, X, Bell, ChevronDown
+  BarChart3, Users, Settings, LogOut, Menu, X, Bell, ChevronDown, Sun, Moon
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn, getInitials } from '@/lib/utils'
+import { useTheme } from '@/context/ThemeContext'
 
 interface NavItem {
   href: string
@@ -40,6 +41,7 @@ const teacherNav: NavItem[] = [
 
 export default function Sidebar() {
   const { data: session } = useSession()
+  const { theme, toggleTheme } = useTheme()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -60,25 +62,25 @@ export default function Sidebar() {
   const SidebarContent = () => (
     <div style={{
       display: 'flex', flexDirection: 'column', height: '100%',
-      background: '#0f172a',
-      borderRight: '1px solid rgba(255,255,255,0.06)',
+      background: 'var(--surface)',
+      borderRight: '1px solid var(--border)',
     }}>
       {/* Logo */}
-      <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
           <div style={{
             width: 36, height: 36, borderRadius: 8,
-            background: roleColor,
+            background: 'var(--brand-500)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(51,102,255,0.3)',
+            boxShadow: '0 4px 12px rgba(249, 115, 22, 0.25)',
           }}>
             <GraduationCap size={20} color="white" />
           </div>
           <div>
-            <div style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.9375rem', color: 'white', lineHeight: 1.2 }}>
+            <div style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.9375rem', color: 'var(--text)', lineHeight: 1.2 }}>
               ANALYZER ACADEMY
             </div>
-            <div style={{ fontSize: '0.6875rem', color: '#475569', fontWeight: 500 }}>
+            <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', fontWeight: 500 }}>
               {roleBadge} Portal
             </div>
           </div>
@@ -100,10 +102,10 @@ export default function Sidebar() {
                 padding: '0.625rem 0.875rem',
                 borderRadius: 8,
                 textDecoration: 'none',
-                background: isActive ? 'rgba(51,102,255,0.15)' : 'transparent',
-                border: isActive ? '1px solid rgba(51,102,255,0.25)' : '1px solid transparent',
-                color: isActive ? '#7ca3ff' : '#64748b',
-                fontWeight: isActive ? 600 : 400,
+                background: isActive ? 'var(--brand-50)' : 'transparent',
+                border: isActive ? '1px solid var(--brand-200)' : '1px solid transparent',
+                color: isActive ? 'var(--brand-600)' : 'var(--text-muted)',
+                fontWeight: isActive ? 600 : 500,
                 fontSize: '0.875rem',
                 transition: 'all 0.15s',
               }}
@@ -116,29 +118,29 @@ export default function Sidebar() {
       </nav>
 
       {/* User menu */}
-      <div style={{ padding: '0.875rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ padding: '0.875rem', borderTop: '1px solid var(--border)' }}>
         <button
           onClick={() => setUserMenuOpen(!userMenuOpen)}
           style={{
             width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem',
             padding: '0.625rem 0.75rem', borderRadius: 10,
-            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)',
+            background: 'var(--surface-2)', border: '1px solid var(--border)',
             cursor: 'pointer', textAlign: 'left',
           }}
         >
           <div style={{
             width: 34, height: 34, borderRadius: '50%',
-            background: roleColor,
+            background: 'var(--brand-500)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '0.8125rem', fontWeight: 700, color: 'white', flexShrink: 0,
           }}>
             {getInitials(name)}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: 'white', fontSize: '0.8125rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ color: 'var(--text)', fontSize: '0.8125rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {name}
             </div>
-            <div style={{ color: '#475569', fontSize: '0.6875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.6875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {email}
             </div>
           </div>
@@ -148,9 +150,24 @@ export default function Sidebar() {
         {userMenuOpen && (
           <div style={{
             marginTop: '0.5rem', borderRadius: 10,
-            background: '#1e293b', border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--surface-2)', border: '1px solid var(--border)',
             overflow: 'hidden',
           }}>
+            <button
+              onClick={toggleTheme}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '0.75rem 1rem',
+                background: 'none', border: 'none', borderBottom: '1px solid var(--border)',
+                color: 'var(--text)', fontSize: '0.875rem', fontWeight: 500,
+                cursor: 'pointer',
+              }}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                {theme === 'dark' ? <Sun size={15} color="#f59e0b" /> : <Moon size={15} color="#ea580c" />}
+                <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+              </span>
+            </button>
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
               style={{
@@ -204,17 +221,17 @@ export default function Sidebar() {
       {/* Mobile top bar */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 30,
-        background: '#0f172a',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        background: 'var(--surface)',
+        borderBottom: '1px solid var(--border)',
         padding: '0.875rem 1rem',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }} className="mobile-topbar">
-        <button onClick={() => setMobileOpen(true)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 4 }}>
+        <button onClick={() => setMobileOpen(true)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }}>
           <Menu size={22} />
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <GraduationCap size={18} color="#7ca3ff" />
-          <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, color: 'white', fontSize: '0.9375rem' }}>ANALYZER ACADEMY</span>
+          <GraduationCap size={18} color="var(--brand-500)" />
+          <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, color: 'var(--text)', fontSize: '0.9375rem' }}>ANALYZER ACADEMY</span>
         </div>
         <div style={{ width: 30 }} />
       </div>
