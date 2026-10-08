@@ -35,7 +35,12 @@ export default async function StudentTestsPage() {
     }),
   ])
 
-  const attemptMap = new Map(myAttempts.map(a => [a.testId, a]))
+  const attemptMap = new Map<string, typeof myAttempts[0]>()
+  for (const a of myAttempts) {
+    if (!attemptMap.has(a.testId)) {
+      attemptMap.set(a.testId, a)
+    }
+  }
 
   const scheduled = tests.filter(t => t.type === 'SCHEDULED')
   const practice = tests.filter(t => t.type === 'PRACTICE')

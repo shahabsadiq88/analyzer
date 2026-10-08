@@ -204,7 +204,18 @@ export default async function ResultsPage({
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {test.type === 'PRACTICE' && (
+            <Link href={`/exam/${test.id}`} style={{
+              padding: '0.75rem 1.75rem', borderRadius: 10,
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              color: 'white', textDecoration: 'none', fontWeight: 700, fontSize: '0.9375rem',
+              boxShadow: '0 4px 15px rgba(16,185,129,0.3)',
+              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            }}>
+              ↻ Retake Test
+            </Link>
+          )}
           <Link href="/dashboard/tests" style={{
             padding: '0.75rem 1.75rem', borderRadius: 10,
             background: 'linear-gradient(135deg, #3366ff, #6644ff)',
