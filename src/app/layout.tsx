@@ -6,7 +6,8 @@ import Providers from '@/components/Providers'
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 }
 
 const inter = Inter({

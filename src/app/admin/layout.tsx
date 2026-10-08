@@ -9,9 +9,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (session.user.role !== 'ADMIN') redirect('/dashboard')
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
+    <div className="app-layout" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <Sidebar />
-      <main style={{ flex: 1, minWidth: 0, overflowX: 'hidden' }}>
+      <main className="app-main" style={{ flex: 1, minWidth: 0, overflowX: 'hidden' }}>
         {children}
       </main>
     </div>

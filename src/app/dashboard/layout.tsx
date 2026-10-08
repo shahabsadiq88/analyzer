@@ -9,9 +9,9 @@ export default async function StudentLayout({ children }: { children: React.Reac
   if (session.user.role !== 'STUDENT') redirect('/admin')
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
+    <div className="app-layout" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <Sidebar />
-      <main style={{ flex: 1, minWidth: 0, overflowX: 'hidden' }}>
+      <main className="app-main" style={{ flex: 1, minWidth: 0, overflowX: 'hidden' }}>
         {children}
       </main>
     </div>
