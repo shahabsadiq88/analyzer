@@ -199,37 +199,44 @@ h1, h2, h3, h4, h5, h6 {
 /* ============================================================
    UTILITY CLASSES
    ============================================================ */
-.container-md { max-width: 768px;  margin-inline: auto; padding-inline: 1rem; }
-.container-lg { max-width: 1024px; margin-inline: auto; padding-inline: 1rem; }
-.container-xl { max-width: 1280px; margin-inline: auto; padding-inline: 1rem; }
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: 1.5rem;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.2rem 0.625rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.badge-primary { background: var(--brand-100); color: var(--brand-700); }
-.badge-success { background: var(--success-light); color: #065f46; }
-.badge-warning { background: var(--warning-light); color: #92400e; }
-.badge-danger  { background: var(--danger-light);  color: #991b1b; }
-.badge-gray    { background: var(--gray-100);       color: var(--gray-700); }
-
 /* ============================================================
-   KaTeX — Math formula overrides
+   RESPONSIVE MOBILE UTILITIES & OVERRIDES
    ============================================================ */
-.katex { font-size: 1em !important; }
-.katex-display { overflow-x: auto; overflow-y: hidden; }
+@media (max-width: 768px) {
+  /* Dynamic container padding on mobile */
+  .page-container {
+    padding: 1rem !important;
+  }
+
+  /* Stack flex containers on small screens */
+  .mobile-flex-col {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  /* Responsive grid adjustments */
+  .grid-responsive-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grid-2col-mobile {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Horizontal scroll for table wrappers */
+  .table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Reduce font sizes and paddings slightly on mobile */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  /* Full width buttons on small screens when stacked */
+  .mobile-w-full {
+    width: 100% !important;
+  }
+}

@@ -150,14 +150,14 @@ export default function ExamEngine({ exam }: { exam: ExamState }) {
   return (
     <div className="exam-mode" style={{ minHeight: '100vh', background: '#0f172a', display: 'flex', flexDirection: 'column' }}>
       {/* Topbar */}
-      <header style={{
+      <header className="exam-topbar" style={{
         position: 'sticky', top: 0, zIndex: 50, padding: '0.75rem 1.25rem',
         background: '#0f172a', borderBottom: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem',
       }}>
         <div style={{ minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, color: 'white', fontSize: '0.9375rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div className="exam-topbar-title" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, color: 'white', fontSize: '0.9375rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {exam.title}
             </div>
             {exam.resumed && (
@@ -202,9 +202,9 @@ export default function ExamEngine({ exam }: { exam: ExamState }) {
         </div>
       </header>
 
-      <div style={{ display: 'flex', flex: 1, gap: 0, maxWidth: 1200, margin: '0 auto', width: '100%', padding: '1.25rem' }}>
+      <div className="exam-layout-container" style={{ display: 'flex', flex: 1, gap: 0, maxWidth: 1200, margin: '0 auto', width: '100%', padding: '1.25rem' }}>
         {/* Question panel */}
-        <div style={{ flex: 1, minWidth: 0, marginRight: '1.25rem' }}>
+        <div className="exam-question-panel" style={{ flex: 1, minWidth: 0, marginRight: '1.25rem' }}>
           <div style={{
             background: '#1e293b', border: '1px solid rgba(255,255,255,0.06)',
             borderRadius: 16, padding: '1.75rem',
@@ -288,7 +288,7 @@ export default function ExamEngine({ exam }: { exam: ExamState }) {
         </div>
 
         {/* Question palette */}
-        <div style={{ width: 220, flexShrink: 0 }}>
+        <div className="exam-palette-panel" style={{ width: 220, flexShrink: 0 }}>
           <div style={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '1rem', position: 'sticky', top: '5rem' }}>
             <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.875rem' }}>
               Question Palette
@@ -377,6 +377,26 @@ export default function ExamEngine({ exam }: { exam: ExamState }) {
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
         button:hover { opacity: 0.9; }
+
+        @media (max-width: 768px) {
+          .exam-layout-container {
+            flex-direction: column !important;
+            padding: 0.75rem !important;
+          }
+          .exam-question-panel {
+            margin-right: 0 !important;
+            margin-bottom: 1.25rem !important;
+          }
+          .exam-palette-panel {
+            width: 100% !important;
+          }
+          .exam-topbar {
+            padding: 0.75rem 0.875rem !important;
+          }
+          .exam-topbar-title {
+            max-width: 140px;
+          }
+        }
       `}</style>
     </div>
   )
